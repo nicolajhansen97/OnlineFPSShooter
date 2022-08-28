@@ -45,6 +45,16 @@ public class Launcher : MonoBehaviourPunCallbacks
     public string[] allMaps;
     public bool changeMapBetweenRounds = true;
 
+    public TMP_Text mapHostText;
+    public TMP_Dropdown mapDropDown;
+    public TMP_Text gameModeHostText;
+    public TMP_Dropdown gameModeDropDown;
+
+
+    public TMP_Text selectedGameMode;
+    public TMP_Text selectedMap;
+
+
     void Start()
     {
         CloseMenus();
@@ -59,6 +69,22 @@ public class Launcher : MonoBehaviourPunCallbacks
        
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+
+        mapDropDown.onValueChanged.AddListener(delegate{mapOutputChanged(mapDropDown);});
+    }
+
+    private void mapOutputChanged(TMP_Dropdown mapOutput)
+    {
+        selectedMap.text = mapOutput.options[mapOutput.value].text;
+
+        photonView.RPC("ChangeMapOnAllScreens", RpcTarget.All, selectedMap.text);
+    }
+
+    [PunRPC]
+    public void ChangeMapOnAllScreens(string map)
+    {
+        selectedMap.text = map;
     }
 
     void CloseMenus()
@@ -70,6 +96,10 @@ public class Launcher : MonoBehaviourPunCallbacks
         errorScreen.SetActive(false);
         roomBrowserScreen.SetActive(false);
         nameInputScreen.SetActive(false);
+        mapDropDown.gameObject.SetActive(false);
+        gameModeHostText.gameObject.SetActive(false);
+        gameModeDropDown.gameObject.SetActive(false);
+        mapHostText.gameObject.SetActive(false);
     }
 
     public override void OnConnectedToMaster()
@@ -138,6 +168,10 @@ public class Launcher : MonoBehaviourPunCallbacks
 
         if(PhotonNetwork.IsMasterClient)
         {
+            gameModeHostText.gameObject.SetActive(true);
+            gameModeDropDown.gameObject.SetActive(true);
+            mapHostText.gameObject.SetActive(true);
+            mapDropDown.gameObject.SetActive(true);
             startButton.SetActive(true);
             playerNameLabel.text = playerNameLabel.text;
         }
@@ -317,8 +351,20 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public void StartGame()
     {
-        //    PhotonNetwork.LoadLevel(levelToPlay);
-        PhotonNetwork.LoadLevel(allMaps[Random.Range(0, allMaps.Length)]);
+
+        if(mapDropDown.value == 0)
+        {
+            PhotonNetwork.LoadLevel(allMaps[Random.Range(0, allMaps.Length)]);
+        }
+        else if(mapDropDown.value == 1)
+        {
+            PhotonNetwork.LoadLevel("Map 1");
+        }
+        else if(mapDropDown.value == 2)
+        {
+            PhotonNetwork.LoadLevel("Map 2");
+        }
+        
 
     }
 
@@ -328,11 +374,16 @@ public class Launcher : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             startButton.SetActive(true);
+            gameModeHostText.gameObject.SetActive(true);
+            gameModeDropDown.gameObject.SetActive(true);
+            mapHostText.gameObject.SetActive(true);
+            mapDropDown.gameObject.SetActive(true);
             playerNameLabel.text = playerNameLabel.text;
         }
         else
         {
             startButton.SetActive(false);
+            mapDropDown.gameObject.SetActive(false);
         }
     }
 
