@@ -41,7 +41,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     public int killsToWin = 3;
     public Transform mapCamPoint;
     public GameState state = GameState.Waiting;
-    public float waitAfterEnding = 5f;
+    public float waitAfterEnding = 10f;
 
     public bool perpetual;
 
@@ -421,7 +421,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public void NextMatchSend()
     {
-        PhotonNetwork.RaiseEvent((byte)EventCodes.NextMatch, null, new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient }, new SendOptions { Reliability = true });
+        PhotonNetwork.RaiseEvent((byte)EventCodes.NextMatch, null, new RaiseEventOptions { Receivers = ReceiverGroup.All }, new SendOptions { Reliability = true });
     }
 
     public void NextMatchReceive()
